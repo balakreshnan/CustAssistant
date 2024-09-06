@@ -178,8 +178,6 @@ async def main1(query):
     print(pluginsel)
     st.write(pluginsel.value[0].inner_content.choices[0].message.content)
 
-
-
 def semroute():
     #asyncio.run(main1())
     #main()
