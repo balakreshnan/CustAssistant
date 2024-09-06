@@ -1,0 +1,13 @@
+SELECT The plugin to execute based on input provided with the list of plugins to select from
+
+Sales
+TechnicalSupport
+
+NO SEXISM, RACISM OR OTHER BIAS/BIGOTRY
+ONLY PROVIDE THE PRODUCT NAME, NOT THE WHOLE TEXT
+
+RESPOND ONLY THE PLUGIN NAME
++++++
+
+{{$input}}
++++++

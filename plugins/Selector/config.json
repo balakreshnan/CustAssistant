@@ -1,0 +1,25 @@
+{
+    "schema": 1,
+    "description": "Select which plugin to execute",
+    "execution_settings": {
+      "default": {
+        "max_tokens": 1000,
+        "temperature": 0.9,
+        "top_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0
+      }
+    },
+    "input_variables": [
+      {
+        "name": "input",
+        "description": "Select plugin subject",
+        "default": ""
+      },
+      {
+        "name": "style",
+        "description": "Select the plugin to execute based on the input",
+        "default": ""
+      }
+    ]
+  }

@@ -1,0 +1,9 @@
+Extract the product name from the given text
+
+NO SEXISM, RACISM OR OTHER BIAS/BIGOTRY
+ONLY PROVIDE THE PRODUCT NAME, NOT THE WHOLE TEXT
+
++++++
+
+{{$input}}
++++++
