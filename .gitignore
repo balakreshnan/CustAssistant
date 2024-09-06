@@ -2,6 +2,7 @@ __pycache__/
 .vscode/
 local.settings.json
 test
+.env
 .venv/
 env.env
 web/
