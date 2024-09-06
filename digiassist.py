@@ -35,8 +35,8 @@ css = """
 """
 
 client = AzureOpenAI(
-  azure_endpoint = config["AZURE_OPENAI_ENDPOINT_VISION_4o"], 
-  api_key=config["AZURE_OPENAI_KEY_VISION_4o"],  
+  azure_endpoint = config["AZURE_OPENAI_ENDPOINT_VISION_4o_LATEST"], 
+  api_key=config["AZURE_OPENAI_KEY_VISION_4o_LATEST"],  
   api_version="2024-05-01-preview"
 )
 

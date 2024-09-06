@@ -1,6 +1,7 @@
 import streamlit as st
 from codeautogen import codeautogen
 from digiassist import digiassit
+from semroute import semroute
 
 # Set page size
 st.set_page_config(
@@ -23,13 +24,16 @@ st.sidebar.image("bblogo1.png", use_column_width=True)
 
 # Sidebar navigation
 nav_option = st.sidebar.selectbox("Navigation", ["Home", "Code Autogen", 
-                                                 "Shopping Cart", "About"])
+                                                 "Shopping Cart",
+                                                  "semroute", "About"])
 
 # Display the selected page
 if nav_option == "Code Autogen":
     codeautogen()
 elif nav_option == "Shopping Cart":
     digiassit()
+elif nav_option == "semroute":
+    semroute()
 #elif nav_option == "VisionAgent":
 #    vaprocess()
 

@@ -17,6 +17,7 @@ from semantic_kernel import __version__
 __version__
 from services import Service
 import os
+import time
 
 from service_settings import ServiceSettings
 import streamlit as st
@@ -97,7 +98,7 @@ async def main():
         # Add the message from the agent to the chat history
         history.add_message(result)
 
-async def main1():
+async def main1(query):
     from semantic_kernel import Kernel
 
     kernel = Kernel()
@@ -155,7 +156,7 @@ async def main1():
     product_plugin = plugin["ProductSelector"]
     product = await kernel.invoke(
         product_plugin,
-        KernelArguments(input="How is power apps used as generative ai application development", style="super silly"),
+        KernelArguments(input=query, style="super silly"),
     )
     print(product)
     st.write(product.value[0].inner_content.choices[0].message.content)
@@ -163,7 +164,7 @@ async def main1():
     select_plugin = plugin["Selector"]
     pluginselect = await kernel.invoke(
         select_plugin,
-        KernelArguments(input="How is power apps used as generative ai application development", style="super silly"),
+        KernelArguments(input=query, style="super silly"),
     )
     print(pluginselect)
     st.write(pluginselect.value[0].inner_content.choices[0].message.content)
@@ -172,7 +173,7 @@ async def main1():
     sel_plugin = plugin[pluginselect.value[0].inner_content.choices[0].message.content]
     pluginsel = await kernel.invoke(
         sel_plugin,
-        KernelArguments(input="How is power apps used as generative ai application development", style="super silly"),
+        KernelArguments(input=query, style="super silly"),
     )
     print(pluginsel)
     st.write(pluginsel.value[0].inner_content.choices[0].message.content)
@@ -180,5 +181,13 @@ async def main1():
 
 
 def semroute():
-    asyncio.run(main1())
+    #asyncio.run(main1())
     #main()
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        query = st.text_area("User Input", "How is power apps used as generative ai application development")
+        if st.button("Submit"):
+            start_time = time.time()
+            asyncio.run(main1(query))
+            end_time = time.time()
+            st.write(f"Time taken: {end_time - start_time} seconds")
