@@ -76,6 +76,36 @@ def processinput(user_input1, selected_optionmodel1):
      Core Graphite in 2 sizes which are 24 x 48 inches, 24 x 24 inches, in 15mm
      Indus Dolphin in 2 sizes which are 24 x 48 inches, 24 x 24 inches, in 15mm
      Indus Apricot in 1 size which are 2 x 2, 2 x 4 in 15mm Digital full
+     Glossy Series
+      Ocean Pearl in size 600x1200mm, finish: Glossy
+      Ocean Sky in size 600x1200mm, finish: Glossy
+      Onxy Grey in size 600x1200mm, finish: Glossy
+      Swan Beige in size 600x1200mm, finish: Glossy
+     White Series
+      Carra Grey in size 600x1200mm, finish: Glossy
+      Creta Statuario in size 600x1200mm, finish: Glossy
+      Nil Blue in size 600x1200mm, finish: Glossy
+      Nil Grey in size 600x1200mm, finish: Glossy
+      Smoke White in size 600x1200mm, finish: Glossy
+      Spice Gold in size 600x1200mm, finish: Glossy
+      Statuario Gold in size 600x1200mm, finish: Glossy
+      Statuario Grey in size 600x1200mm, finish: Glossy
+      Superb Stuario in size 600x1200mm, finish: Glossy
+      Swiss Bianco in size 600x1200mm, finish: Glossy
+      Unico White in size 600x1200mm, finish: Glossy
+      Zibra Grey in size 600x1200mm, finish: Glossy
+     Luxuria Collection
+      Altissimo Mint in size 600x1200mm, finish: Glossy
+      Astrus Blue in size 600x1200mm, finish: Glossy
+      Aura Mint in size 600x1200mm, fisnish: Glossy
+      Averaly Aqua in size 600x1200mm, finish: Glossy
+      Julian Sky in size 600x1200mm, finish: Glossy
+      Nabraska Azul in size 600x1200mm, finish: Glossy
+     Light Dark Series
+      Amelia Grey in size 600x1200mm
+      Armano Grey in size 600x1200mm
+      Floris Azul in size 600x1200mm
+      Floris Bianco in size 600x1200mm
 
      Here are the thickness information:
      Thickness are available in 3 sizes
@@ -96,6 +126,11 @@ def processinput(user_input1, selected_optionmodel1):
      dinning room or rest room or toilet etc to analyze and provide how much tiles are needed based on the sizing information given above.
      Be politely, and provide positive tone answers. Don't get into augments with user.
      Try to provide reasoning on how the recommendations were selected.
+     There is a aspect of co effiecient of friction that needs to be considered based on the area where the tiles are used.
+     r value is what co effiecient of friction is based on. The higher the r value the more friction the tile has.
+     Water absorption is another aspect to consider. The lower the water absorption the better the tile is.
+     General area of use is also important to consider. 
+     If the tile is used in a high traffic area then the tile should be durable and have a higher r value.
      Only answer from the information provided to best match based on the question asked."""}, 
     {"role": "user", "content": f"""{user_input1}. Provide Recommendations based on the information provided above. 
      If there is square foot provided please calculate the square footage needed."""}]
