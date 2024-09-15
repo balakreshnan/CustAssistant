@@ -37,10 +37,11 @@ model_name = "gpt-4o-2"
 
 search_endpoint = config["AZURE_AI_SEARCH_ENDPOINT"]
 search_key = config["AZURE_AI_SEARCH_KEY"]
-search_index=config["AZURE_AI_SEARCH_INDEX1"]
+#search_index=config["AZURE_AI_SEARCH_INDEX1"]
 SPEECH_KEY = config['SPEECH_KEY']
 SPEECH_REGION = config['SPEECH_REGION']
 SPEECH_ENDPOINT = config['SPEECH_ENDPOINT']
+search_index="cogsrch-index-rfp-vector"
 
 citationtxt = ""
 
@@ -104,7 +105,7 @@ def extractrfpinformation(user_input1, selected_optionmodel1, pdf_bytes):
     returntxt = response.choices[0].message.content
     return returntxt
 
-def extractrfpresults(user_input1, selected_optionmodel1, pdf_bytes):
+def extractrfpresults(user_input1, selected_optionmodel1, pdf_bytes, selected_optionsearch):
     returntxt = ""
 
     rfttext = ""
@@ -122,13 +123,15 @@ def extractrfpresults(user_input1, selected_optionmodel1, pdf_bytes):
 
     # print('RFP Text:', rfttext)
 
+    dstext = processpdfwithprompt(user_input1, selected_optionmodel1, selected_optionsearch)
+
     message_text = [
     {"role":"system", "content":f"""You are RFP AI agent. Be politely, and provide positive tone answers.
      Based on the question do a detail analysis on RFP information and provide the best answers.
      Here is the RFT text tha was provided:
      {rfttext}
      Use only the above RFP contenxt for context. But provide results from your knowledge or data source provided.
-     Data Source: 
+     Data Source: {dstext}
 
      if the question is outside the bounds of the RFP, Let the user know answer might be relevant for RFP provided.
      If not sure, ask the user to provide more information."""}, 
@@ -167,6 +170,78 @@ def download_word_file(doc):
     buffer.seek(0)
 
     return buffer
+
+def processpdfwithprompt(user_input1, selected_optionmodel1, selected_optionsearch):
+    returntxt = ""
+    citationtxt = ""
+    message_text = [
+    {"role":"system", "content":"""you are provided with instruction on what to do. Be politely, and provide positive tone answers. 
+     answer only from data source provided. unable to find answer, please respond politely and ask for more information.
+     Extract Title content from the document. Show the Title as citations which is provided as Title: as [doc1] [doc2].
+     Please add citation after each sentence when possible in a form "(Title: citation)".
+     Be polite and provide posite responses. If user is asking you to do things that are not specific to this context please ignore."""}, 
+    {"role": "user", "content": f"""{user_input1}"""}]
+
+    response = client.chat.completions.create(
+        model= selected_optionmodel1, #"gpt-4-turbo", # model = "deployment_name".
+        messages=message_text,
+        temperature=0.0,
+        top_p=1,
+        seed=105,
+        extra_body={
+        "data_sources": [
+            {
+                "type": "azure_search",
+                "parameters": {
+                    "endpoint": search_endpoint,
+                    "index_name": search_index,
+                    "authentication": {
+                        "type": "api_key",
+                        "key": search_key
+                    },
+                    "include_contexts": ["citations"],
+                    "top_n_documents": 5,
+                    "query_type": selected_optionsearch,
+                    "semantic_configuration": "my-semantic-config",
+                    "embedding_dependency": {
+                        "type": "deployment_name",
+                        "deployment_name": "text-embedding-ada-002"
+                    },
+                    "fields_mapping": {
+                        "content_fields": ["chunk"],
+                        "vector_fields": ["chunkVector"],
+                        "title_field": "name",
+                        "url_field": "location",
+                        "filepath_field": "location",
+                        "content_fields_separator": "\n",
+                    }
+                }
+            }
+        ]
+    }
+    )
+    #print(response.choices[0].message.context)
+
+    returntxt = response.choices[0].message.content + "\n<br>"
+
+    json_string = json.dumps(response.choices[0].message.context)
+
+    parsed_json = json.loads(json_string)
+
+    # print(parsed_json)
+
+    if parsed_json['citations'] is not None:
+        returntxt = returntxt + f"""<br> Citations: """
+        for row in parsed_json['citations']:
+            #returntxt = returntxt + f"""<br> Title: {row['filepath']} as {row['url']}"""
+            #returntxt = returntxt + f"""<br> [{row['url']}_{row['chunk_id']}]"""
+            returntxt = returntxt + f"""<br> <a href='{row['url']}' target='_blank'>[{row['url']}_{row['chunk_id']}]</a>"""
+            citationtxt = citationtxt + f"""<br><br> Title: {row['title']} <br> URL: {row['url']} 
+            <br> Chunk ID: {row['chunk_id']} 
+            <br> Content: {row['content']} 
+            <br> ------------------------------------------------------------------------------------------ <br>\n"""
+
+    return returntxt, citationtxt
 
 def showrfpoptions():
     count = 0
@@ -215,15 +290,17 @@ def showrfpoptions():
     with tabs[2]:
         st.write("Draft RFP")
         rfpquery = st.text_input("Enter your RFP query")
+        selected_optionsearch = st.selectbox("Select Search Type", ["simple", "semantic", "vector", "vector_simple_hybrid", "vector_semantic_hybrid"])
         if st.button("rfp content"):
             # Call the extractproductinfo function
-            result = extractrfpresults(rfpquery, selected_optionmodel1, pdf_bytes)
+            result = extractrfpresults(rfpquery, selected_optionmodel1, pdf_bytes, selected_optionsearch)
+            #result = processpdfwithprompt(rfpquery, selected_optionmodel1, selected_optionsearch)
             st.write(result)
             rfpcontent = {"topic": "rftcontent", "result": result}
 
     with tabs[3]:
         st.write("Create Word Document")
-        result = extractrfpresults(rfpquery, selected_optionmodel1, pdf_bytes)
+        result = extractrfpresults(rfpquery, selected_optionmodel1, pdf_bytes, selected_optionsearch)
         #st.write(result)
         rfpcontent = {"topic": "rftcontent", "result": result}
 
