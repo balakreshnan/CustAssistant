@@ -243,6 +243,10 @@ def processpdfwithprompt(user_input1, selected_optionmodel1, selected_optionsear
 
     return returntxt, citationtxt
 
+# Function to convert file to base64 encoding
+def file_to_base64(file):
+    return base64.b64encode(file.read()).decode()
+
 def showrfpoptions():
     count = 0
     temp_file_path = ""
@@ -323,5 +327,12 @@ def showrfpoptions():
                     file_name="generated_document.docx",
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
+                # base64_pdf = base64.b64encode(word_file).decode('utf-8')
+                # Embed the Word document using an iframe
+                st.markdown(f"""
+                    <iframe src="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{word_file}" 
+                            width="700" height="500" type="application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                    </iframe>
+                """, unsafe_allow_html=True)
         else:
             st.error("Check your rfp content.")
