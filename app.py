@@ -4,6 +4,7 @@ from digiassist import digiassit
 from semroute import semroute
 from TilesRecom import TilesRecom
 from rfpapp import showrfpoptions
+from custplanning import customerplanning
 
 # Set page size
 st.set_page_config(
@@ -27,7 +28,7 @@ st.sidebar.image("bblogo1.png", use_column_width=True)
 # Sidebar navigation
 nav_option = st.sidebar.selectbox("Navigation", ["Home", "Code Autogen", 
                                                  "Shopping Cart", "TilesRecom",
-                                                 "RFP",
+                                                 "RFP", "Customer Planning",
                                                   "semroute", "About"])
 
 # Display the selected page
@@ -41,6 +42,8 @@ elif nav_option == "TilesRecom":
     TilesRecom()
 elif nav_option == "RFP":
     showrfpoptions()
+elif nav_option == "Customer Planning":
+    customerplanning()
 #elif nav_option == "VisionAgent":
 #    vaprocess()
 
