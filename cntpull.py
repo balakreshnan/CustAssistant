@@ -104,12 +104,30 @@ def fetch_content(url):
     driver = webdriver.Chrome(service=service)
 
     # Open the page
-    driver.get("https://newsroom.accenture.com/?year=2024")
+    #driver.get("https://newsroom.accenture.com/?year=2024")
+    driver.get("https://newsroom.accenture.com/news")
+
+    # Wait for the page to be fully loaded
+    WebDriverWait(driver, 60).until(
+        lambda driver: driver.execute_script("return document.readyState") == "complete"
+    )
+    print("Page is fully loaded!")
 
     # Wait for the dynamic content to load
-    WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "your-class-name"))
+    #WebDriverWait(driver, 60).until(
+    #    EC.presence_of_element_located((By.CLASS_NAME, "newslist"))
+    #)
+    # Increase the timeout to 120 seconds to give the page more time to load
+    WebDriverWait(driver, 120).until(
+        EC.visibility_of_element_located((By.CLASS_NAME, "newslist"))
     )
+    # Wait for network activity to cease
+    WebDriverWait(driver, 60).until(
+        lambda driver: driver.execute_script("return window.performance.getEntriesByType('resource').length > 0")
+    )
+    print("Network activity has ceased.")
+
+    
 
     # Get the page's HTML after JavaScript has loaded the dynamic content
     html = driver.page_source
@@ -118,8 +136,8 @@ def fetch_content(url):
     soup = BeautifulSoup(html, 'html.parser')
 
     # Parse the specific div with dynamic content
-    # div_content = soup.find("div", class_="newslist")
-    div_content = soup.find("div")
+    div_content = soup.find("div", class_="newslist")
+    # div_content = soup.find("div")
     print(div_content.text)
 
     # Close the browser
@@ -129,6 +147,7 @@ if __name__ == '__main__':
     url = 'https://newsroom.accenture.com/?year=2024'
     #summary = fetch_and_summarize(url)
     summary = fetch_content(url)
+    print(summary)
     if summary:
         print(summary['Body'])
     else:

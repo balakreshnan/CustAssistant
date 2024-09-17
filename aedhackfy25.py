@@ -325,7 +325,9 @@ def aechackfy25():
         if st.button("Search"):
             # Call the extractproductinfo function
             result = extractrfpinformation(query, selected_optionmodel1, pdf_bytes)
-            st.write(result)
+
+            # st.text_input("Output", result)
+            st.markdown(result, unsafe_allow_html=True)
     with tabs[2]:
         st.write("RFP Topic List")
         rfttopics = getrfptopictorespond(query, selected_optionmodel1, pdf_bytes)
@@ -337,7 +339,9 @@ def aechackfy25():
             # Call the extractproductinfo function
             result = extractrfpresults(rfpquery, selected_optionmodel1, pdf_bytes, selected_optionsearch)
             #result = processpdfwithprompt(rfpquery, selected_optionmodel1, selected_optionsearch)
-            st.write(result)
+            #st.text_input(value=result)
+            #st.text_input("Output", result)
+            st.markdown(result, unsafe_allow_html=True)
             rfpcontent = {"topic": "rftcontent", "result": result}
 
     with tabs[3]:
