@@ -5,6 +5,7 @@ from semroute import semroute
 from TilesRecom import TilesRecom
 from rfpapp import showrfpoptions
 from custplanning import customerplanning
+from aedhackfy25 import aechackfy25
 
 # Set page size
 st.set_page_config(
@@ -29,6 +30,7 @@ st.sidebar.image("bblogo1.png", use_column_width=True)
 nav_option = st.sidebar.selectbox("Navigation", ["Home", "Code Autogen", 
                                                  "Shopping Cart", "TilesRecom",
                                                  "RFP", "Customer Planning",
+                                                 "AEC Hack",
                                                   "semroute", "About"])
 
 # Display the selected page
@@ -44,6 +46,8 @@ elif nav_option == "RFP":
     showrfpoptions()
 elif nav_option == "Customer Planning":
     customerplanning()
+elif nav_option == "AEC Hack":
+    aechackfy25()
 #elif nav_option == "VisionAgent":
 #    vaprocess()
 
