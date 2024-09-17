@@ -301,6 +301,13 @@ def extract_and_summarize(content):
     title = soup.find('h1').get_text() if soup.find('h1') else 'No Title'
     # description = soup.find('meta', attrs={'name': 'description'})
     description = soup.find('p').get_text() if soup.find('p') else 'No description available'
+    #description += soup.find('div').get_text() if soup.find('div') else 'No description available' 
+    # Step 3: Find the 'div' element with a specific class name
+    class_name = "newslist"  # Replace with the actual class name
+    div_content = soup.find_all('div', class_=class_name)
+    for div in div_content:
+        print(div.get_text(strip=True)) 
+        description += div.get_text(strip=True)
     # description = description['content'] if description else 'No description available'
     summary['Title'] = title
     summary['Description'] = description
@@ -323,7 +330,7 @@ def extractopporunity(htmloutput, selected_optionmodel1):
     {"role":"system", "content":"""You are Sales expert AI Agent. Be politely, and provide positive tone answers.
      Based on the content provided, analyze and create Sales opportunities.
      If not sure, ask the user to provide more information."""}, 
-    {"role": "user", "content": f"""{htmloutput}. Can you analyze and create Sales opporunties."""}]
+    {"role": "user", "content": f"""{htmloutput}. Can you analyze and create Sales opporunties. Extract contact Names, Company Names, and other details."""}]
 
     response = client.chat.completions.create(
         model= selected_optionmodel1, #"gpt-4-turbo", # model = "deployment_name".
@@ -343,6 +350,7 @@ def createemailforoppt(htmloutput, selected_optionmodel1):
     message_text = [
     {"role":"system", "content":"""You are Sales expert AI Agent. Be politely, and provide positive tone answers.
      Based on the content provided, analyze and create Sales opportunities.
+     Extract contact information to whom we can target the email.
      If not sure, ask the user to provide more information."""}, 
     {"role": "user", "content": f"""{htmloutput}. Create a business professional email addressing the contact to send."""}]
 
@@ -366,6 +374,27 @@ def createspeakernotes(htmloutput, selected_optionmodel1):
      Based on the content provided, analyze and create Sales opportunities.
      If not sure, ask the user to provide more information."""}, 
     {"role": "user", "content": f"""{htmloutput}. Create speaker notes on the content for sales folks to talk to customer."""}]
+
+    response = client.chat.completions.create(
+        model= selected_optionmodel1, #"gpt-4-turbo", # model = "deployment_name".
+        messages=message_text,
+        temperature=0.0,
+        top_p=0.0,
+        seed=105,
+    )
+
+
+    returntxt = response.choices[0].message.content
+    return returntxt
+
+def createswatanlysis(htmloutput, selected_optionmodel1):
+    returntxt = ""
+
+    message_text = [
+    {"role":"system", "content":"""You are Sales expert AI Agent. Be politely, and provide positive tone answers.
+     Based on the content provided, do a SWAT analysis and provide results.
+     If not sure, ask the user to provide more information."""}, 
+    {"role": "user", "content": f"""{htmloutput}. Create a SWAT analysis."""}]
 
     response = client.chat.completions.create(
         model= selected_optionmodel1, #"gpt-4-turbo", # model = "deployment_name".
@@ -442,7 +471,7 @@ def customerplanning():
         st.write("NewRooms Strategy")
         st.write("Use this tab to create a NewRooms Strategy")
         # httpurl = "https://newsroom.accenture.com/news/2024"
-        httpurl = "https://newsroom.accenture.com/news/2024/accenture-federal-services-wins-190m-u-s-department-of-state-data-and-systems-engineering-contract"
+        httpurl = "https://newsroom.accenture.com/news/2024/accenture-invests-in-martian-to-bring-dynamic-routing-of-large-language-queries-and-more-effective-ai-systems-to-clients"
         httpurlquery = st.text_input("Enter the URL to extract content:", value=httpurl)
         if st.button("Get Content"):
             #htmloutput = getcontent(httpurl)
@@ -456,14 +485,22 @@ def customerplanning():
                     httpcontent += f"{section}:\n{text}\n"
                 st.markdown(httpcontent, unsafe_allow_html=True)
 
-                st.write("Sales Opportunity")
+                # st.write("Sales Opportunity")
+                st.markdown("<h2>Sales Opportunity</h2>", unsafe_allow_html=True)
                 salesopp = extractopporunity(httpcontent, selected_optionmodel1)
                 st.markdown(salesopp, unsafe_allow_html=True)
 
-                st.write("Create Email")
+                # st.write("Create Email")
+                st.markdown("<h2>Email - Content</h2>", unsafe_allow_html=True)
                 emailcontent = createemailforoppt(httpcontent, selected_optionmodel1)
                 st.markdown(emailcontent, unsafe_allow_html=True)
 
-                st.write("Speaker Notes")
+                #st.write("Speaker Notes")
+                st.markdown("<h2>Speaker Notes</h2>", unsafe_allow_html=True)
                 speakernotes = createspeakernotes(httpcontent, selected_optionmodel1)
                 st.markdown(speakernotes, unsafe_allow_html=True)
+
+                #st.write("SWAT Analysis")
+                st.markdown("<h2>SWAT Analysis</h2>", unsafe_allow_html=True)
+                swatanalysis = createswatanlysis(httpcontent, selected_optionmodel1)
+                st.markdown(swatanalysis, unsafe_allow_html=True)
