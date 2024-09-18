@@ -21,6 +21,7 @@ import wave
 import tempfile
 import PyPDF2
 from docx import Document
+from streamlit_quill import st_quill
 
 config = dotenv_values("env.env")
 
@@ -44,6 +45,8 @@ SPEECH_ENDPOINT = config['SPEECH_ENDPOINT']
 search_index="cogsrch-index-rfp-vector"
 
 citationtxt = ""
+
+
 
 def extractproductinfo(user_input1, selected_optionmodel1):
     returntxt = ""
@@ -266,9 +269,10 @@ def getrfptopictorespond(user_input1, selected_optionmodel1, pdf_bytes):
     message_text = [
     {"role":"system", "content":f"""You are RFP and proposal expert AI Agent. Be politely, and provide positive tone answers.
      extract the topics to respond back with details as bullet point only.
+     Only respond with high level topics and avoid details.
      Here is the RFP text: {rfttext}
      If not sure, ask the user to provide more information."""}, 
-    {"role": "user", "content": f"""{user_input1}. Extract the topics to respond back with details as bullet point only."""}]
+    {"role": "user", "content": f"""{user_input1}. Extract the topics to respond back high level bullet point only."""}]
 
     response = client.chat.completions.create(
         model= selected_optionmodel1, #"gpt-4-turbo", # model = "deployment_name".
@@ -281,6 +285,57 @@ def getrfptopictorespond(user_input1, selected_optionmodel1, pdf_bytes):
 
     returntxt = response.choices[0].message.content
     return returntxt
+# Initialize session state for the editor content
+if "quill_rfpcontent" not in st.session_state:
+    st.session_state.quill_rfpcontent = ""
+
+# Initialize session state for the editor content
+if "quill_rfpresponse" not in st.session_state:
+    st.session_state.quill_rfpresponse = ""
+
+# Define a function to update the content programmatically
+def update_quill_rfpcontent(new_content):
+    st.session_state.quill_rfpcontent = new_content
+
+# Define a function to update the content programmatically
+def update_quill_rfpresponse(new_content):
+    st.session_state.quill_rfpresponse = new_content
+
+# Define the Linked List Node class
+class Node:
+    def __init__(self, topic_name, content):
+        self.topic_name = topic_name
+        self.content = content
+        self.next = None
+
+# Define the Linked List class
+class LinkedList:
+    def __init__(self):
+        self.head = None
+
+    # Method to add new node to the list
+    def add(self, topic_name, content):
+        new_node = Node(topic_name, content)
+        if not self.head:
+            self.head = new_node
+        else:
+            current = self.head
+            while current.next:
+                current = current.next
+            current.next = new_node
+
+    # Method to display the list
+    def display(self):
+        current = self.head
+        while current:
+            st.write(f"**Topic:** {current.topic_name}")
+            st.write(f"**Content:** {current.content}")
+            st.write("---")
+            current = current.next
+
+# Initialize session state for storing the linked list
+if "linked_list" not in st.session_state:
+    st.session_state.linked_list = LinkedList()
 
 def aechackfy25():
     count = 0
@@ -290,6 +345,8 @@ def aechackfy25():
     rfplist = []
     #tab1, tab2, tab3, tab4 = st.tabs('RFP PDF', 'RFP Research', 'Draft', 'Create Word')
     modeloptions1 = ["gpt-4o-2", "gpt-4o-g", "gpt-4o", "gpt-4-turbo", "gpt-35-turbo"]
+
+
 
     # Create a dropdown menu using selectbox method
     selected_optionmodel1 = st.selectbox("Select an Model:", modeloptions1)
@@ -321,34 +378,57 @@ def aechackfy25():
 
     with tabs[1]:
         st.write("Search for information in RFP")        
-        query = st.text_input("Enter your search query")
+        query = st.text_input("Enter your search query", "Summarize the content of the RFP")
+        
         if st.button("Search"):
             # Call the extractproductinfo function
             result = extractrfpinformation(query, selected_optionmodel1, pdf_bytes)
-
             # st.text_input("Output", result)
-            st.markdown(result, unsafe_allow_html=True)
+            # st.markdown(result, unsafe_allow_html=True)
+            #st.session_state.quill_rfpcontent = result
+            update_quill_rfpcontent(result)
+            # print('RFP Content:', result)
+            #rfpcontent1 = st_quill(result)
+            #rfpcontent1
+        rfpcontent1 = st_quill(st.session_state.quill_rfpcontent, placeholder="Enter your rich text...",    key="editor1")
     with tabs[2]:
         st.write("RFP Topic List")
-        rfttopics = getrfptopictorespond(query, selected_optionmodel1, pdf_bytes)
-        st.markdown(rfttopics)
-        st.write("RFP Draft")
-        rfpquery = st.text_input("Enter your RFP query")
-        selected_optionsearch = st.selectbox("Select Search Type", ["simple", "semantic", "vector", "vector_simple_hybrid", "vector_semantic_hybrid"])
-        if st.button("rfp content"):
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            rfpquery = st.text_input("Enter your RFP query", "show me insights on bridge construction")
+            selected_optionsearch = st.selectbox("Select Search Type", ["simple", "semantic", "vector", "vector_simple_hybrid", "vector_semantic_hybrid"])
+            topic_name = st.text_input("Enter the topic name:", "Introduction")
             # Call the extractproductinfo function
-            result = extractrfpresults(rfpquery, selected_optionmodel1, pdf_bytes, selected_optionsearch)
-            #result = processpdfwithprompt(rfpquery, selected_optionmodel1, selected_optionsearch)
-            #st.text_input(value=result)
-            #st.text_input("Output", result)
-            st.markdown(result, unsafe_allow_html=True)
-            rfpcontent = {"topic": "rftcontent", "result": result}
+            rfttopics = getrfptopictorespond(rfpquery, selected_optionmodel1, pdf_bytes)
+            st.markdown(rfttopics)
+            rfpcontent = {"topic": "rftcontent", "result": rfttopics}
+        #rfttopics = getrfptopictorespond(query, selected_optionmodel1, pdf_bytes)
+        #st.markdown(rfttopics)
+        #st.write("RFP Draft")
+        #rfpquery = st.text_input("Enter your RFP query", "show me insights on bridge construction")
+        with col2:                 
+            if st.button("rfp content"):
+                # Call the extractproductinfo function
+                result = extractrfpresults(rfpquery, selected_optionmodel1, pdf_bytes, selected_optionsearch)
+                #result = processpdfwithprompt(rfpquery, selected_optionmodel1, selected_optionsearch)
+                #st.text_input(value=result)
+                #st.text_input("Output", result)
+                # st.markdown(result, unsafe_allow_html=True)
+                # quill_rfpresponse
+                st.session_state.quill_rfpresponse = result
+                update_quill_rfpresponse(result)
+                
+                rfpcontent = {"topic": "rftcontent", "result": result}
+            rfpresponse1 = st_quill(st.session_state.quill_rfpresponse, placeholder="Enter your rich text...",    key="editor")
 
     with tabs[3]:
         st.write("Create Word Document")
-        result = extractrfpresults(rfpquery, selected_optionmodel1, pdf_bytes, selected_optionsearch)
-        #st.write(result)
-        rfpcontent = {"topic": "rftcontent", "result": result}
+        # result = extractrfpresults(rfpquery, selected_optionmodel1, pdf_bytes, selected_optionsearch)
+        if rfpresponse1:
+            st.session_state.quill_rfpresponse = rfpresponse1
+            resultdoc = st.session_state.quill_rfpresponse
+            #st.write(result)
+            rfpcontent = {"topic": "RFP Content", "result": resultdoc}
 
         if st.button("Generate and Download Word Document"):
             if rfpcontent:

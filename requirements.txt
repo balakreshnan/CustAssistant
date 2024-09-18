@@ -16,3 +16,4 @@ python-docx
 beautifulsoup4
 sumy
 selenium 
+streamlit-quill
