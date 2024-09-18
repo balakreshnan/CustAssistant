@@ -295,13 +295,11 @@ if "quill_rfpresponse" not in st.session_state:
 
 # Define a function to update the content programmatically
 def update_quill_rfpcontent(new_content):
-  
-    # Append new content to the existing content changed
     st.session_state.quill_rfpcontent = new_content
 
 # Define a function to update the content programmatically
 def update_quill_rfpresponse(new_content):
-    st.session_state.quill_rfpresponse += new_content
+    st.session_state.quill_rfpresponse = new_content
 
 # Define the Linked List Node class
 class Node:
@@ -317,23 +315,16 @@ class LinkedList:
 
     # Method to add new node to the list
     def add(self, topic_name, content):
-        # Check if the topic already exists
-        if self.contains(topic_name):
-            # Update the content of the existing topic
-            self.update(topic_name, content)
+        new_node = Node(topic_name, content)
+        if not self.head:
+            self.head = new_node
         else:
-            # Add a new node if the topic does not exist
-            new_node = Node(topic_name, content)
-            if not self.head:
-                self.head = new_node
-            else:
-                current = self.head
-                while current.next:
-                    current = current.next
-                current.next = new_node
-   
+            current = self.head
+            while current.next:
+                current = current.next
+            current.next = new_node
+
     # Method to display the list
-    """
     def display(self):
         current = self.head
         while current:
@@ -341,32 +332,12 @@ class LinkedList:
             st.write(f"**Content:** {current.content}")
             st.write("---")
             current = current.next
-   """
-    def display(self):
-        current = self.head
-        content = ""
-        while current:
-            content += f"**Topic:** {current.topic_name}\n**Content:** {current.content}\n\n"
-            current = current.next
-        return content
-    def contains(self, topic_name):
-        current = self.head
-        while current:
-            if current.topic_name == topic_name:
-                return True
-            current = current.next
-        return False
 
-    def update(self, topic_name, content):
-        current = self.head
-        while current:
-            if current.topic_name == topic_name:
-                current.content = content
-                return
-            current = current.next
+# Initialize session state for storing the linked list
+if "linked_list" not in st.session_state:
+    st.session_state.linked_list = LinkedList()
 
-
-def aechackfy25():
+def aechackfy25_1():
     count = 0
     temp_file_path = ""
     pdf_bytes = None
@@ -444,34 +415,12 @@ def aechackfy25():
                 #st.text_input("Output", result)
                 # st.markdown(result, unsafe_allow_html=True)
                 # quill_rfpresponse
-                #st.session_state.quill_rfpresponse = result changed
-                
+                st.session_state.quill_rfpresponse = result
                 update_quill_rfpresponse(result)
-               
-
+                
                 rfpcontent = {"topic": "rftcontent", "result": result}
-            rfpresponse1 = st_quill(st.session_state.quill_rfpresponse, placeholder="Enter your rich text here...",    key="editor_rfp_response")
-            update_quill_rfpresponse(rfpresponse1)
-            # Add a save button
-            if st.button("Save"):
-               # sections = st.session_state.quill_rfpresponse.strip().split('\n\n')
-                sections = st.session_state.quill_rfpresponse.strip().split('\n\n')
-                # Initialize the linked list
-                # Initialize session state for storing the linked list
-                if "linked_list" not in st.session_state:
-                    st.session_state.linked_list = LinkedList()
+            rfpresponse1 = st_quill(st.session_state.quill_rfpresponse, placeholder="Enter your rich text...",    key="editor")
 
-                # Add each section to the linked list
-                for section in sections:
-                    if '**' in section:
-                        parts = section.split('**')
-                        if len(parts) >= 3:
-                            topic = parts[1].strip()
-                            content = parts[2].strip()
-                            st.session_state.linked_list.add(topic, content)
-                    else:
-                        st.session_state.linked_list.add('Introduction', section)
-                st.text_area("RFP Response",  st.session_state.linked_list.display(), height=400, key="editor_linked_list")
     with tabs[3]:
         st.write("Create Word Document")
         # result = extractrfpresults(rfpquery, selected_optionmodel1, pdf_bytes, selected_optionsearch)
