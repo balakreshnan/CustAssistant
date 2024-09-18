@@ -431,6 +431,7 @@ def aechackfy25():
             rfttopics = getrfptopictorespond(rfpquery, selected_optionmodel1, pdf_bytes)
             st.markdown(rfttopics)
             rfpcontent = {"topic": "rftcontent", "result": rfttopics}
+            st.image("bridgeengg2.jpg", use_column_width=True)
         #rfttopics = getrfptopictorespond(query, selected_optionmodel1, pdf_bytes)
         #st.markdown(rfttopics)
         #st.write("RFP Draft")
@@ -502,10 +503,10 @@ def aechackfy25():
                 )
                 # base64_pdf = base64.b64encode(word_file).decode('utf-8')
                 # Embed the Word document using an iframe
-                st.markdown(f"""
-                    <iframe src="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{word_file}" 
-                            width="700" height="500" type="application/vnd.openxmlformats-officedocument.wordprocessingml.document">
-                    </iframe>
-                """, unsafe_allow_html=True)
+                #st.markdown(f"""
+                #    <iframe src="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{word_file}" 
+                #            width="700" height="500" type="application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                #    </iframe>
+                #""", unsafe_allow_html=True)
         else:
             st.error("Check your rfp content.")

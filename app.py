@@ -5,7 +5,7 @@ from semroute import semroute
 from TilesRecom import TilesRecom
 from rfpapp import showrfpoptions
 from custplanning import customerplanning
-from aedhackfy25_1 import aechackfy25
+from aedhackfy25 import aechackfy25
 # from semchat import semchat
 
 # Set page size
@@ -24,8 +24,9 @@ def load_css(file_path):
 # Call the function to load the CSS
 load_css("styles.css")
 
-st.logo("bblogo1.png")
-st.sidebar.image("bblogo1.png", use_column_width=True)
+#st.logo("bblogo1.png")
+#st.sidebar.image("bblogo1.png", use_column_width=True)
+st.sidebar.image("rfp3.png", use_column_width=True)
 
 # Sidebar navigation
 nav_option = st.sidebar.selectbox("Navigation", ["Home", "Code Autogen", 
