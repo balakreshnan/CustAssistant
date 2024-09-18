@@ -497,7 +497,7 @@ def aechackfy25():
         st.write("RFP Topic List")
         col1, col2 = st.columns([1, 2])
         with col1:
-            rfpquery = st.text_input("Enter your RFP query", "show me insights on bridge construction")
+            rfpquery = st.text_input("Enter your RFP query", "what are qualification or critical success to winning this RFQ")
             selected_optionsearch = st.selectbox("Select Search Type", ["simple", "semantic", "vector", "vector_simple_hybrid", "vector_semantic_hybrid"])
             topic_name = st.text_input("Enter the topic name:", "Introduction")
             # Call the extractproductinfo function
