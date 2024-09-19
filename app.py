@@ -26,7 +26,7 @@ load_css("styles.css")
 
 #st.logo("bblogo1.png")
 #st.sidebar.image("bblogo1.png", use_column_width=True)
-st.sidebar.image("rfp3.png", use_column_width=True)
+st.sidebar.image("hackathonimagefy24.png", use_column_width=True)
 
 # Sidebar navigation
 nav_option = st.sidebar.selectbox("Navigation", ["Home", "Code Autogen", 
