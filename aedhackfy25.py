@@ -154,7 +154,7 @@ def extractrfpresults(user_input1, selected_optionmodel1, pdf_bytes, selected_op
 # Function to create a Word document
 def create_word_doc(content):
     doc = Document()
-    doc.add_heading('Generated Word Document', 0)
+    doc.add_heading('RFP for Project X', 0)
 
     doc.add_paragraph(content)
 
@@ -249,7 +249,7 @@ def processpdfwithprompt(user_input1, selected_optionmodel1, selected_optionsear
 def processpdfwithpromptgranite(user_input1, selected_optionmodel1, selected_optionsearch):
     returntxt = ""
     citationtxt = ""
-    search_indexgranite = "graniteindex"
+    search_indexgranite = "graniteindexvec"
     message_text = [
     {"role":"system", "content":"""you are provided with instruction on what to do. Be politely, and provide positive tone answers. 
      answer only from data source provided. unable to find answer, please respond politely and ask for more information.
