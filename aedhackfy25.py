@@ -22,6 +22,7 @@ import tempfile
 import PyPDF2
 from docx import Document
 from streamlit_quill import st_quill
+import fitz  # PyMuPDF
 
 config = dotenv_values("env.env")
 
@@ -444,6 +445,21 @@ def display_pdf_as_iframe(file_path):
         pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="900" type="application/pdf"></iframe>'
         st.markdown(pdf_display, unsafe_allow_html=True)
 
+# Function to convert PDF pages into images
+def pdf_to_images(pdf_path, zoom=2.0):
+    # Open the PDF file
+    pdf_document = fitz.open(pdf_path)
+    images = []
+
+    # Iterate through all the pages
+    for page_num in range(len(pdf_document)):
+        page = pdf_document.load_page(page_num)  # Load page
+        pix = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom))  # Render the page as an image
+        image = Image.open(io.BytesIO(pix.tobytes("png")))  # Convert to PIL Image
+        images.append(image)
+
+    return images
+
 def aechackfy25():
     count = 0
     temp_file_path = ""
@@ -593,18 +609,13 @@ def aechackfy25():
         # uploaded_file1 = os.getcwd() + "/Preliminary_Plans.pdf"
         pdf_file = os.getcwd() + "\\Preliminary_Plans.pdf"
         print(pdf_file)
-        #display_pdf_as_iframe(pdf_file)
-        #with open(pdf_file, "rb") as f:
-        #    base64_pdf1 = base64.b64encode(f.read()).decode('utf-8')
-        #    pdf_display1 = f'<iframe src="data:application/pdf;base64,{base64_pdf1}" width="700" height="900" type="application/pdf"></iframe>'
-        #    st.markdown(pdf_display1, unsafe_allow_html=True)
+        # Convert PDF pages to images
+        images = pdf_to_images(pdf_file, zoom=2.0)
 
-        uploaded_file1 = st.file_uploader("Choose a PDF file", type="pdf", key="pdf_file1")
-        if uploaded_file1 is not None:
-            # Display the PDF in an iframe
-            pdf_bytes1 = uploaded_file1.read()
-            # Convert to base64
-            base64_pdf1 = base64.b64encode(pdf_bytes1).decode('utf-8')
-            # Embedding PDF using an HTML iframe
-            pdf_display1 = f'<iframe src="data:application/pdf;base64,{base64_pdf1}" width="700" height="1000" type="application/pdf"></iframe>'
-            st.markdown(pdf_display1, unsafe_allow_html=True)
+        # Save the images or show them (optional)
+        #for i, img in enumerate(images):
+        #    img.save(f"page_{i+1}.png")  # Save each page as an image file
+        #    img.show()  # To display the image
+
+        for i, img in enumerate(images):
+            st.image(img, caption=f"Page {i+1}", use_column_width=True)
