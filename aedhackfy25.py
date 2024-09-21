@@ -438,6 +438,11 @@ class LinkedList:
                 return
             current = current.next
 
+def display_pdf_as_iframe(file_path):
+    with open(file_path, "rb") as f:
+        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="900" type="application/pdf"></iframe>'
+        st.markdown(pdf_display, unsafe_allow_html=True)
 
 def aechackfy25():
     count = 0
@@ -454,11 +459,11 @@ def aechackfy25():
     selected_optionmodel1 = st.selectbox("Select an Model:", modeloptions1)
     count += 1
 
-    tabs = st.tabs(["RFP PDF", "RFP Research", "RFP Draft", "Create Word"])
+    tabs = st.tabs(["RFP PDF", "RFP Research", "RFP Draft", "Create Word", "Existing RFP Drawings"])
 
     with tabs[0]:
         st.write("Upload RFP PDF file")
-        uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
+        uploaded_file = st.file_uploader("Choose a PDF file", type="pdf", key="pdf_file0")
         if uploaded_file is not None:
             # Display the PDF in an iframe
             pdf_bytes = uploaded_file.read()  # Read the PDF as bytes
@@ -583,3 +588,23 @@ def aechackfy25():
                 #""", unsafe_allow_html=True)
         else:
             st.error("Check your rfp content.")
+    with tabs[4]:
+        st.write("Displaying Existing RFP Drawing")
+        # uploaded_file1 = os.getcwd() + "/Preliminary_Plans.pdf"
+        pdf_file = os.getcwd() + "\\Preliminary_Plans.pdf"
+        print(pdf_file)
+        #display_pdf_as_iframe(pdf_file)
+        #with open(pdf_file, "rb") as f:
+        #    base64_pdf1 = base64.b64encode(f.read()).decode('utf-8')
+        #    pdf_display1 = f'<iframe src="data:application/pdf;base64,{base64_pdf1}" width="700" height="900" type="application/pdf"></iframe>'
+        #    st.markdown(pdf_display1, unsafe_allow_html=True)
+
+        uploaded_file1 = st.file_uploader("Choose a PDF file", type="pdf", key="pdf_file1")
+        if uploaded_file1 is not None:
+            # Display the PDF in an iframe
+            pdf_bytes1 = uploaded_file1.read()
+            # Convert to base64
+            base64_pdf1 = base64.b64encode(pdf_bytes1).decode('utf-8')
+            # Embedding PDF using an HTML iframe
+            pdf_display1 = f'<iframe src="data:application/pdf;base64,{base64_pdf1}" width="700" height="1000" type="application/pdf"></iframe>'
+            st.markdown(pdf_display1, unsafe_allow_html=True)
