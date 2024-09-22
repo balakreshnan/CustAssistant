@@ -70,6 +70,21 @@ def extractproductinfo(user_input1, selected_optionmodel1):
     returntxt = response.choices[0].message.content
     return returntxt
 
+def extracttextfrompdf(pdf_bytes):
+    returntxt = ""
+
+    if pdf_bytes:
+        reader = PyPDF2.PdfReader(io.BytesIO(pdf_bytes))
+        num_pages = len(reader.pages)
+        st.write(f"Number of pages in the PDF: {num_pages}")
+        # Extract and display text from the first page
+        if num_pages > 0:
+            page = reader.pages[0]  # Get the first page
+            text = page.extract_text()  # Extract text from the page
+            returntxt = text
+
+    return returntxt
+
 def extractrfpinformation(user_input1, selected_optionmodel1, pdf_bytes):
     returntxt = ""
 
@@ -460,6 +475,102 @@ def pdf_to_images(pdf_path, zoom=2.0):
 
     return images
 
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+    
+def processimage(base64_image, imgprompt):
+    response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {
+        "role": "user",
+        "content": [
+            {"type": "text", "text": f"{imgprompt}"},
+            {
+            "type": "image_url",
+            "image_url": {
+                "url" : f"data:image/jpeg;base64,{base64_image}",
+            },
+            },
+        ],
+        }
+    ],
+    max_tokens=2000,
+    temperature=0,
+    top_p=1,
+    )
+
+    #print(response.choices[0].message.content)
+    return response.choices[0].message.content
+
+def process_image(uploaded_file, selected_optionmodel, user_input):
+    returntxt = ""
+
+    if uploaded_file is not None:
+        #image = Image.open(os.path.join(os.getcwd(),"temp.jpeg"))
+        img_path = os.path.join(os.getcwd(), uploaded_file)
+        # Open the image using PIL
+        #image_bytes = uploaded_file.read()
+        #image = Image.open(io.BytesIO(image_bytes))
+
+        base64_image = encode_image(img_path)
+        #base64_image = base64.b64encode(uploaded_file).decode('utf-8') #uploaded_image.convert('L')
+        imgprompt = f"""You are a Constructon drawing AutoCad Expert Agent. Analyze the image and find details for questions asked.
+        Only answer from the data source provided.
+        Image has information about drawingsprovided.
+        can you extract details of this drawings.
+
+        Question:
+        {user_input} 
+        """
+
+        # Get the response from the model
+        result = processimage(base64_image, imgprompt)
+
+        #returntxt += f"Image uploaded: {uploaded_file.name}\n"
+        returntxt = result
+
+    return returntxt
+
+def compare_rfq_drawings(uploaded_file, selected_optionmodel, user_input, pdf_file):
+    returntxt = ""
+    pdftext = ""
+
+    if pdf_file is not None:
+        pdftext = extracttextfrompdf(pdf_file)
+
+    if uploaded_file is not None:
+        #image = Image.open(os.path.join(os.getcwd(),"temp.jpeg"))
+        img_path = os.path.join(os.getcwd(), uploaded_file)
+        # Open the image using PIL
+        #image_bytes = uploaded_file.read()
+        #image = Image.open(io.BytesIO(image_bytes))
+
+        base64_image = encode_image(img_path)
+        #base64_image = base64.b64encode(uploaded_file).decode('utf-8') #uploaded_image.convert('L')
+        imgprompt = f"""You are a Constructon drawing AutoCad Expert Agent. Analyze the image and find details for questions asked.
+        Only answer from the data source provided.
+        Image has information about drawingsprovided.
+        Compare the insights from drawings to RFQ provided. Provide details on if the drawings have everything needed for RFQ.
+        Point out any missing details.
+        Also provide recommendation on any improvements we can do.
+
+        RFQ Text:
+        {pdftext}
+
+        Question:
+        {user_input} 
+        """
+
+        # Get the response from the model
+        result = processimage(base64_image, imgprompt)
+
+        #returntxt += f"Image uploaded: {uploaded_file.name}\n"
+        returntxt = result
+
+    return returntxt
+
 def aechackfy25():
     count = 0
     temp_file_path = ""
@@ -475,7 +586,9 @@ def aechackfy25():
     selected_optionmodel1 = st.selectbox("Select an Model:", modeloptions1)
     count += 1
 
-    tabs = st.tabs(["RFP PDF", "RFP Research", "RFP Draft", "Create Word", "Existing RFP Drawings"])
+    tabs = st.tabs(["RFP PDF", "RFP Research", "RFP Draft", "Create Word", 
+                    "Existing RFP Drawings", "Compare Drawings to RFQ"])
+
 
     with tabs[0]:
         st.write("Upload RFP PDF file")
@@ -488,7 +601,7 @@ def aechackfy25():
             # Convert to base64
             base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
             # Embedding PDF using an HTML iframe
-            pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf"></iframe>'
+            pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="1000" height="700" type="application/pdf"></iframe>'
             st.markdown(pdf_display, unsafe_allow_html=True)
             # Save the PDF file to the current folder
             file_path = os.path.join(os.getcwd(), uploaded_file.name)  # Save in the current directory
@@ -496,7 +609,7 @@ def aechackfy25():
                 f.write(uploaded_file.read())  # Write the uploaded file to disk
             
             # Display the path where the file is stored
-            st.write(f"File saved to: {file_path}")
+            # st.write(f"File saved to: {file_path}")
             temp_file_path = file_path
 
     with tabs[1]:
@@ -606,16 +719,32 @@ def aechackfy25():
             st.error("Check your rfp content.")
     with tabs[4]:
         st.write("Displaying Existing RFP Drawing")
-        # uploaded_file1 = os.getcwd() + "/Preliminary_Plans.pdf"
-        pdf_file = os.getcwd() + "\\Preliminary_Plans.pdf"
-        print(pdf_file)
-        # Convert PDF pages to images
-        images = pdf_to_images(pdf_file, zoom=2.0)
+        col1, col2 = st.columns([1, 2])
 
-        # Save the images or show them (optional)
-        #for i, img in enumerate(images):
-        #    img.save(f"page_{i+1}.png")  # Save each page as an image file
-        #    img.show()  # To display the image
+        with col1:
+            st.write("Upload RFP Drawing")
+            constimgfile = "constr2.jpg"
+            drawingtext = process_image(constimgfile, selected_optionmodel1, "what are the details of this drawing")
+            st.markdown(drawingtext, unsafe_allow_html=True)
+            
+        with col2:
+            # uploaded_file1 = os.getcwd() + "/Preliminary_Plans.pdf"
+            pdf_file = os.getcwd() + "\\Preliminary_Plans.pdf"
+            print(pdf_file)
+            # Convert PDF pages to images
+            images = pdf_to_images(pdf_file, zoom=2.0)
 
-        for i, img in enumerate(images):
-            st.image(img, caption=f"Page {i+1}", use_column_width=True)
+            # Save the images or show them (optional)
+            #for i, img in enumerate(images):
+            #    img.save(f"page_{i+1}.png")  # Save each page as an image file
+            #    img.show()  # To display the image
+
+            for i, img in enumerate(images):
+                st.image(img, caption=f"Page {i+1}", use_column_width=True)
+    with tabs[5]:
+        st.write("Compare Drawings to RFQ")
+        constimgfile = "constr2.jpg"
+        if uploaded_file:
+            pdf_bytes2 = uploaded_file.read()  # Read the PDF as bytes
+            drwaingsinsightstext = compare_rfq_drawings(constimgfile, selected_optionmodel1, "what are the details of this drawing", pdf_bytes2)
+            st.markdown(drwaingsinsightstext, unsafe_allow_html=True)
