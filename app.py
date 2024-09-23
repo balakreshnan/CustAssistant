@@ -6,6 +6,7 @@ from TilesRecom import TilesRecom
 from rfpapp import showrfpoptions
 from custplanning import customerplanning
 from aedhackfy25 import aechackfy25
+from autocad import autocad_analysis
 # from semchat import semchat
 
 # Set page size
@@ -33,7 +34,8 @@ nav_option = st.sidebar.selectbox("Navigation", ["Home", "Code Autogen",
                                                  "Shopping Cart", "TilesRecom",
                                                  "RFP", "Customer Planning",
                                                  "AEC Hack", "Sem Chat", 
-                                                  "semroute", "About"])
+                                                  "semroute", "Construction",
+                                                  "About"])
 
 # Display the selected page
 if nav_option == "Code Autogen":
@@ -50,6 +52,8 @@ elif nav_option == "Customer Planning":
     customerplanning()
 elif nav_option == "AEC Hack":
     aechackfy25()
+elif nav_option == "Construction":
+    autocad_analysis()
 #elif nav_option == "Sem Chat":
     # semchat()
 #elif nav_option == "VisionAgent":
