@@ -88,7 +88,7 @@ def process_articles(data):
 
 def get_data():
     # URL of the JSON data
-    url = "https://newsroom.accenture.com/query-index.json?sheet=homepage&limit=10&offset=0&ts=28776829"
+    url = "https://newsroom.accenture.com/query-index.json?sheet=homepage&limit=10&offset=0&ts=28786386"
 
     # Fetch the data from the URL
     response = requests.get(url)
